@@ -26,4 +26,19 @@ Mines will be represented by sharks.\
 Zero numbered tiles will be represented by ducks.\
 Flags will be represented by lilies.\
 
+# Gtk2Hs Setup Commands on terminal
+
+* sudo apt update
+* sudo apt install libgtk2.0-0 libgtk2.0-dev libgmp-dev
+* cabal update
+* cabal install gtk2hs-buildtools
+* cabal install gtk
+* etup your Haskell project (if not already) then do changes to your .cabal file -
+  build-depends:  base >=4.7 && <5,    
+                  gtk >=0.15 && <0.16
+* create hs file which has gui code (here ex- initGUI.hs)
+* outside your project-
+  * cabal build
+  * cabal run
+
 ***
