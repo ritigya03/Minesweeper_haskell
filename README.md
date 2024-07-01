@@ -33,7 +33,7 @@ Flags will be represented by lilies.\
 * cabal update
 * cabal install gtk2hs-buildtools
 * cabal install gtk
-* etup your Haskell project (if not already) then do changes to your .cabal file -
+* setup your Haskell project (if not already) then do changes to your .cabal file -
   build-depends:  base >=4.7 && <5,    
                   gtk >=0.15 && <0.16
 * create hs file which has gui code (here ex- initGUI.hs)
