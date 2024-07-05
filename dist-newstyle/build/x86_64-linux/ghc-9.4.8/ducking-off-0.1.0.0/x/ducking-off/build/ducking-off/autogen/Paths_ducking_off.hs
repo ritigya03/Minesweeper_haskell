@@ -46,12 +46,12 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
-bindir     = "/home/kc/.cabal/bin"
-libdir     = "/home/kc/.cabal/lib/x86_64-linux-ghc-9.4.8/ducking-off-0.1.0.0-inplace-ducking-off"
-dynlibdir  = "/home/kc/.cabal/lib/x86_64-linux-ghc-9.4.8"
-datadir    = "/home/kc/.cabal/share/x86_64-linux-ghc-9.4.8/ducking-off-0.1.0.0"
-libexecdir = "/home/kc/.cabal/libexec/x86_64-linux-ghc-9.4.8/ducking-off-0.1.0.0"
-sysconfdir = "/home/kc/.cabal/etc"
+bindir     = "/home/xmwriam/.cabal/bin"
+libdir     = "/home/xmwriam/.cabal/lib/x86_64-linux-ghc-9.4.8/ducking-off-0.1.0.0-inplace-ducking-off"
+dynlibdir  = "/home/xmwriam/.cabal/lib/x86_64-linux-ghc-9.4.8"
+datadir    = "/home/xmwriam/.cabal/share/x86_64-linux-ghc-9.4.8/ducking-off-0.1.0.0"
+libexecdir = "/home/xmwriam/.cabal/libexec/x86_64-linux-ghc-9.4.8/ducking-off-0.1.0.0"
+sysconfdir = "/home/xmwriam/.cabal/etc"
 
 getBinDir     = catchIO (getEnv "ducking_off_bindir")     (\_ -> return bindir)
 getLibDir     = catchIO (getEnv "ducking_off_libdir")     (\_ -> return libdir)
