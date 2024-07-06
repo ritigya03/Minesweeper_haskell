@@ -28,7 +28,11 @@ printGrid grid = mapM_ (putStrLn . concatMap showCell) grid
     showCell (Revealed n)    = show n ++ " "
     showCell Empty = ". "
     
-
+setLevel :: String -> [Int]
+setLevel level = case level of
+    "B" -> [8, 8, 10]
+    "I" -> [16, 16, 40]
+    "E" -> [30, 16, 99]
 
 countMines :: Grid -> Int -> Int -> Int 
 countMines grid row col = length[() | (r, c) <- neighbors, isMine r c] 
@@ -45,12 +49,15 @@ revealCell grid row col =
  
 main :: IO ()
 main = do
-    let rows = 5
-    let cols = 5
-    let numMines = 5
+    -- let rows = 5
+    -- let cols = 5
+    -- let numMines = 5
+    putStrLn "Enter level (B: Beginner, I: Intermediate, E: Expert)"
+    level <- getLine
+    let [rows, cols, numMines] = setLevel level
     grid <- initializeGrid rows cols
     gridWithMines <- placeMines grid numMines
     printGrid gridWithMines
     putStrLn ""
-    let new = revealCell gridWithMines 0 2
+    let new = revealCell gridWithMines 3 9
     printGrid new
