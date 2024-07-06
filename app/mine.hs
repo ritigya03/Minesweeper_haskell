@@ -1,7 +1,7 @@
 import System.Random (randomRIO)
 import Control.Monad (replicateM)
 type Grid = [[Cell]]
-data Cell = Mine | Empty deriving (Show, Eq)
+data Cell = Mine | Empty | Revealed Int deriving (Show, Eq)     
 
 
 initializeGrid :: Int -> Int -> IO Grid
@@ -24,7 +24,24 @@ printGrid :: Grid -> IO ()
 printGrid grid = mapM_ (putStrLn . concatMap showCell) grid
   where
     showCell Mine  = "* "
+    showCell (Revealed 0)    = "  "
+    showCell (Revealed n)    = show n ++ " "
     showCell Empty = ". "
+    
+
+
+countMines :: Grid -> Int -> Int -> Int 
+countMines grid row col = length[() | (r, c) <- neighbors, isMine r c] 
+    where
+    rows = length grid
+    cols = length(head grid)
+    neighbors = [ (r, c) | r <- [row - 1..row + 1], c <- [col - 1..col + 1], r >= 0, c >= 0, r < rows, c < cols, (r, c) /= (row, col) ] 
+    isMine r c = grid !!r !!c == Mine
+
+revealCell :: Grid -> Int -> Int -> Grid
+revealCell grid row col =
+    case grid !!row !!col of
+    Empty -> take row grid++ [take col(grid !!row)++ [Revealed(countMines grid row col)]++ drop(col + 1)(grid !!row)]++ drop(row + 1) grid
  
 main :: IO ()
 main = do
@@ -34,3 +51,6 @@ main = do
     grid <- initializeGrid rows cols
     gridWithMines <- placeMines grid numMines
     printGrid gridWithMines
+    putStrLn ""
+    let new = revealCell gridWithMines 0 2
+    printGrid new
