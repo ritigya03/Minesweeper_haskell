@@ -17,4 +17,4 @@ main = do
 
   widgetShowAll window
   on window objectDestroy mainQuit
-  mainGUI
+  mainGUI
