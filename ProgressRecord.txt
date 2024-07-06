@@ -1,0 +1,31 @@
+6th July 2024
+
+Board code completed (Basic)
+-----------------------------
+
+Mariam - Initialised Grid
+
+
+
+
+
+Ritigya - Added Mines on Grid
+
+PlaceMines is a fuction which takes 2 args, a grid (2d list of cells) and num of mines, and return an IO action that produces a modified grid. 
+Inside this func, the num of rows and col(the len of first element of list of lists) is extracted, we create a random position for a mine (a tuple of row,col) and then replicate it numMines times creating a list using replicateM, this result is binded to minePositions. 
+We use foldl func that applies a func (which uses placemine) to an initial value(grid) and a list(minePositions).
+
+PlaceMine is a function which places a single mine on a given grid position it is used as a helper func in PlaceMines. 
+'Take row grid' takes thefirst row number (all rows before specified one),'take col ....' takes the first col (all cells before specified col), we do list concatenation to get the modified row.
+Then we add rest of the rows to the modified grid. 
+
+Key Points:
+1 - Haskell uses IO monads to handle side effects. The '<-' syntax is used to extract values from IO actions inside a do block.
+2 - foldl is like reduce in python (from left to right).
+3 - Haskell is immutable, hence we create new data structures rather than modifying.
+4 - !! is an operator which allows us to access elements in a list by their index.
+5 - drop is a func which removes specified num of elements from the beginning of a list and returns remaining.
+
+
+
+
