@@ -23,10 +23,10 @@ placeMine grid row col = take row grid ++ [take col (grid !! row) ++ [Mine] ++ d
 printGrid :: Grid -> IO ()
 printGrid grid = mapM_ (putStrLn . concatMap showCell) grid
   where
-    showCell Mine  = "* "
-    showCell (Revealed 0)    = "  "
-    showCell (Revealed n)    = show n ++ " "
-    showCell Empty = ". "
+        showCell Mine = "💣 "
+        showCell (Revealed 0) = "🍀 "
+        showCell (Revealed n) = show n ++ " "
+        showCell Empty = "🐥 "
     
 setLevel :: String -> [Int]
 setLevel level = case level of
@@ -52,7 +52,7 @@ main = do
     -- let rows = 5
     -- let cols = 5
     -- let numMines = 5
-    putStrLn "Enter level (B: Beginner, I: Intermediate, E: Expert)"
+    putStrLn "Enter level (B: Beginner, I: Intermediate, E: Expert): "
     level <- getLine
     let [rows, cols, numMines] = setLevel level
     grid <- initializeGrid rows cols
