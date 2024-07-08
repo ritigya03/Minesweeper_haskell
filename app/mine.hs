@@ -55,8 +55,13 @@ revealCell grid row col =
                    [take col (grid !! row)
                       ++
                         [Revealed (countMines grid row col)]
-                          ++ drop (col + 1) (grid !! row)]
-                     ++ drop (row + 1) grid
+                          ++ drop (col + 1) (grid !! row)]++ drop (row + 1) grid
+
+hideMines :: Grid -> Grid
+hideMines grid = map (map hideCell) grid
+        where
+                hideCell Mine = Empty
+                hideCell cell = cell
 main :: IO ()
 main = do
     -- let rows = 5
@@ -68,6 +73,8 @@ main = do
     grid <- initializeGrid rows cols
     gridWithMines <- placeMines grid numMines
     printGrid gridWithMines
+    putStrLn ""
+    printGrid $ hideMines gridWithMines
     putStrLn ""
     let new = revealCell gridWithMines 6 1
     printGrid new
