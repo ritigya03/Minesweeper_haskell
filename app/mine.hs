@@ -67,7 +67,13 @@ hideMines grid = map (map hideCell) grid
 preventErrors :: Grid -> Int -> Int -> Maybe Cell
 preventErrors grid r c
   | r < 0 || c < 0 || r >= length grid || c >= length (head grid) = Nothing
+  | alreadyRevealed = Nothing
   | otherwise = Just (grid !! r !! c)
+ where
+         alreadyRevealed = case grid !! r !! c of
+                             Revealed _ -> True
+                             _          -> False
+
 
 main :: IO ()
 main = do
