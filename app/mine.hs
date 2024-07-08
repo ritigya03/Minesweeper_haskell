@@ -62,6 +62,11 @@ hideMines grid = map (map hideCell) grid
         where
                 hideCell Mine = Empty
                 hideCell cell = cell
+preventErrors :: Grid -> Int -> Int -> Maybe Cell
+preventErrors grid r c
+  | r < 0 || c < 0 || r >= length grid || c >= length (head grid) = Nothing
+  | otherwise = Just (grid !! r !! c)
+
 main :: IO ()
 main = do
     -- let rows = 5
