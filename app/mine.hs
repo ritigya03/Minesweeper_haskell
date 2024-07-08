@@ -74,6 +74,22 @@ preventErrors grid r c
                              Revealed _ -> True
                              _          -> False
 
+playGame :: Grid -> IO()
+playGame grid = do
+        printGrid grid
+        putStrLn "Enter row and col to reveal (eg. 1 2): "
+        input <- getLine
+        let (row, col) = readCoords input
+        if preventErrors grid row col
+           then do
+                   let newGrid = revealCell grid row col
+                   case preventErrors grid row col of
+                     Just Mine -> putStrLn "Boom Game Over! You hit a mine." >> printGrid newGrid
+                     _         -> playGame newGrid
+           else putStrLn "Invalid Coordinates." >> playGame grid
+
+readCoords :: String -> (Int, Int)
+readCoords input = (read (words input !! 0), read (words input !! 1)) 
 
 main :: IO ()
 main = do
@@ -91,3 +107,4 @@ main = do
     putStrLn ""
     let new = revealCell gridWithMines 6 1
     printGrid new
+    playGame gridWithMines
