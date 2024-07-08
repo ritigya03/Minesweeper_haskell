@@ -38,7 +38,9 @@ countMines grid row col = length[() | (r, c) <- neighbours, isMine r c]
         -- cols = length (head grid)
         -- neighbours = [(r, c) | r <- [row - 1..row + 1], c <- [col - 1..col + 1], r >= 0, c >= 0, r < rows, c < cols, (r, c) /= (row, col)]
         neighbours = getNeighbours grid row col
-        isMine r c = grid !! r !! c == Mine
+        isMine r c = case preventErrors grid r c of
+                       Just Mine -> True
+                       _         -> False
 
 getNeighbours :: Grid -> Int -> Int -> [(Int, Int)]
 getNeighbours grid row col = [ (r, c) | r <- [row - 1..row + 1], c <- [col - 1..col + 1], r >= 0, c >= 0, r < rows, c < cols, (r, c) /= (row, col) ] 
