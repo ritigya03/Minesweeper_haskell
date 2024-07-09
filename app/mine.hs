@@ -51,13 +51,7 @@ getNeighbours grid row col = [ (r, c) | r <- [row - 1..row + 1], c <- [col - 1..
 revealCell :: Grid -> Int -> Int -> Grid
 revealCell grid row col = 
     case grid !!row !!col of
-    Empty
-            -> take row grid
-                 ++
-                   [take col (grid !! row)
-                      ++
-                        [Revealed (countMines grid row col)]
-                          ++ drop (col + 1) (grid !! row)]++ drop (row + 1) grid
+        Empty -> take row grid ++ [take col (grid !! row) ++ [Revealed (countMines grid row col)] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
 
 hideMines :: Grid -> Grid
 hideMines grid = map (map hideCell) grid
