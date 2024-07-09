@@ -55,16 +55,21 @@ getNeighbours grid row col = [ (r, c) | r <- [row - 1..row + 1], c <- [col - 1..
         rows = length grid
         cols = length (head grid)
 
-revealCell :: Grid -> Int -> Int -> Grid
-revealCell grid row col = 
-    case grid !!row !!col of
-    Empty
-            -> take row grid
-                 ++
-                   [take col (grid !! row)
-                      ++
-                        [Revealed (countMines grid row col)]
-                          ++ drop (col + 1) (grid !! row)]++ drop (row + 1) grid
+revealCell :: Grid -> [(Int, Int)] -> Grid
+revealCell grid [] = grid
+revealCell grid ((row, col) : rest) =
+    case grid !! row !! col of
+        Empty -> let
+                    newGrid = updateCell grid row col (Revealed (countMines grid row col))
+                    newRest = if countMines grid row col == 0 
+                              then rest ++ (getNeighbours grid row col) 
+                              else rest
+                 in revealCell newGrid newRest
+        _     -> revealCell grid rest
+
+updateCell :: Grid -> Int -> Int -> Cell -> Grid
+updateCell grid row col cell = 
+    take row grid ++ [take col (grid !! row) ++ [cell] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
 
 hideMines :: Grid -> Grid
 hideMines grid = map (map hideCell) grid
@@ -90,7 +95,7 @@ playGame grid = do
     case preventErrors grid row col of
         Just Mine -> putStrLn "Boom! Game Over! You hit a mine." >> printGrid grid
         Just _    -> do
-            let newGrid = revealCell grid row col
+            let newGrid = revealCell grid [(row, col)]
             playGame newGrid
         Nothing   -> putStrLn "Invalid Coordinates." >> playGame grid
 
