@@ -17,13 +17,15 @@ placeMines grid numMines = do
 placeMine :: Grid -> Int -> Int -> Grid
 placeMine grid row col = take row grid ++ [take col (grid !! row) ++ [Mine] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
 
+
+cellToString :: Cell -> String
+cellToString Mine = "💣 "
+cellToString Empty = "🐥 "
+cellToString (Revealed 0) = "🍀 "
+cellToString (Revealed n) = " " ++ show n ++ " "
+
 printGrid :: Grid -> IO()
-printGrid grid = mapM_ (putStrLn . concatMap showCell) grid
-    where
-        showCell Mine = "💣 "
-        showCell (Revealed 0) = "🍀 "
-        showCell (Revealed n) =" " ++ show n ++ " "
-        showCell Empty = "🐥 "
+printGrid grid = mapM_ (putStrLn . concatMap cellToString) grid
 
 setLevel :: String -> [Int]
 setLevel level = case level of
