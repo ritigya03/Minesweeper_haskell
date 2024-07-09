@@ -20,15 +20,15 @@ placeMine grid row col = take row grid ++ [take col (grid !! row) ++ [Mine] ++ d
 
 
 cellToString :: Cell -> String
-cellToString Mine = printf "%-3s" "💣"
-cellToString Empty = printf "%-3s" "🐥"
-cellToString (Revealed 0) = printf "%-3s" "🍀"
-cellToString (Revealed n) = printf "%-3d" n
+cellToString Mine = printf "%-3s" ("💣" :: String)
+cellToString Empty = printf "%-3s" ("🐥" :: String)
+cellToString (Revealed 0) = printf ("🍀" :: String)
+cellToString (Revealed n) = printf "%-3d" (n :: Int)
 
 printGrid :: Grid -> IO()
 printGrid grid = do
-    let colNumbers = "   " ++ concatMap (\n -> printf "%-3d" n) [0..(length (head grid) - 1)]
-        rowWithNumbers = zipWith (\i row -> printf "%-3d" i ++ concatMap cellToString row) [0..] grid
+    let colNumbers = "   " ++ concatMap (\n -> printf "%-4d" (n :: Int)) [0..(length (head grid) - 1)]
+        rowWithNumbers = zipWith (\i row -> printf "%-3d" (i :: Int) ++ concatMap cellToString row) [0..] grid
     putStrLn colNumbers
     mapM_ putStrLn rowWithNumbers
 
