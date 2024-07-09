@@ -41,9 +41,6 @@ setLevel level = case level of
 countMines :: Grid -> Int -> Int -> Int
 countMines grid row col = length[() | (r, c) <- neighbours, isMine r c]
     where 
-        -- rows = length grid
-        -- cols = length (head grid)
-        -- neighbours = [(r, c) | r <- [row - 1..row + 1], c <- [col - 1..col + 1], r >= 0, c >= 0, r < rows, c < cols, (r, c) /= (row, col)]
         neighbours = getNeighbours grid row col
         isMine r c = case preventErrors grid r c of
                        Just Mine -> True
@@ -118,11 +115,11 @@ main = do
     grid <- initializeGrid rows cols
     gridWithMines <- placeMines grid numMines
     let gridIndex = [ (r, c) | r <- [0..rows - 1], c <- [0..cols - 1] ] 
-    let new = revealCell gridWithMines gridIndex
+    let finalGrid = revealCell gridWithMines gridIndex
     --printGrid gridWithMines
     --putStrLn ""
     --let new = revealCell gridWithMines 6 1
     --printGrid new
     --putStrLn ""
     playGame gridWithMines
-    printGrid new
+    printGrid finalGrid
