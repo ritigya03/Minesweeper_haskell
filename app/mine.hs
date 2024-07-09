@@ -1,5 +1,6 @@
 import System.Random (randomRIO)
 import Control.Monad (replicateM)
+import Text.Printf (printf)
 type Grid = [[Cell]]
 data Cell = Mine | Empty | Revealed Int deriving (Show, Eq)
 
@@ -17,13 +18,19 @@ placeMines grid numMines = do
 placeMine :: Grid -> Int -> Int -> Grid
 placeMine grid row col = take row grid ++ [take col (grid !! row) ++ [Mine] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
 
+
+cellToString :: Cell -> String
+cellToString Mine = printf "%-3s" ("💣" :: String)
+cellToString Empty = printf "%-3s" ("🐥" :: String)
+cellToString (Revealed 0) = printf "%-3s" ("🍀" :: String)
+cellToString (Revealed n) = printf "%-4d" (n :: Int)
+
 printGrid :: Grid -> IO()
-printGrid grid = mapM_ (putStrLn . concatMap showCell) grid
-    where
-        showCell Mine = "💣 "
-        showCell (Revealed 0) = "🍀 "
-        showCell (Revealed n) =" " ++ show n ++ " "
-        showCell Empty = "🐥 "
+printGrid grid = do
+    let colNumbers = "   " ++ concatMap (\n -> printf "%-4d" (n :: Int)) [0..(length (head grid) - 1)]
+        rowWithNumbers = zipWith (\num row -> printf "%-3d" (num :: Int) ++ concatMap cellToString row) [0..] grid
+    putStrLn colNumbers
+    mapM_ putStrLn rowWithNumbers
 
 setLevel :: String -> [Int]
 setLevel level = case level of
