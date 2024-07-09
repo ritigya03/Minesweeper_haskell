@@ -22,7 +22,7 @@ printGrid grid = mapM_ (putStrLn . concatMap showCell) grid
     where
         showCell Mine = "💣 "
         showCell (Revealed 0) = "🍀 "
-        showCell (Revealed n) = show n ++ " "
+        showCell (Revealed n) =" " ++ show n ++ " "
         showCell Empty = "🐥 "
 
 setLevel :: String -> [Int]
