@@ -98,7 +98,7 @@ playGame grid = do
     input <- getLine
     let (row, col) = readCoords input
     case preventErrors grid row col of
-        Just Mine -> putStrLn "Boom! Game Over! You hit a mine." >> printGrid grid
+        Just Mine -> putStrLn "Boom! Game Over! You hit a mine." 
         Just _    -> do
             let newGrid = revealCell grid [(row, col)]
             playGame newGrid
@@ -117,9 +117,12 @@ main = do
     let [rows, cols, numMines] = setLevel level
     grid <- initializeGrid rows cols
     gridWithMines <- placeMines grid numMines
+    let gridIndex = [ (r, c) | r <- [0..rows - 1], c <- [0..cols - 1] ] 
+    let new = revealCell gridWithMines gridIndex
     --printGrid gridWithMines
     --putStrLn ""
     --let new = revealCell gridWithMines 6 1
     --printGrid new
     --putStrLn ""
     playGame gridWithMines
+    printGrid new
