@@ -27,7 +27,9 @@ cellToString (Revealed n) = " " ++ show n ++ " "
 printGrid :: Grid -> IO()
 printGrid grid = do
     let colNumbers = "   " ++ unwords (map ((" " ++) . show) [0..(length (head grid) - 1)])
+        rowWithNumbers = zipWith (\i row -> show i ++ "  " ++ concatMap cellToString row) [0..] grid
     putStrLn colNumbers
+    mapM_ putStrLn rowWithNumbers
 
 setLevel :: String -> [Int]
 setLevel level = case level of
