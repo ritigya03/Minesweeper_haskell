@@ -25,7 +25,9 @@ cellToString (Revealed 0) = "🍀 "
 cellToString (Revealed n) = " " ++ show n ++ " "
 
 printGrid :: Grid -> IO()
-printGrid grid = mapM_ (putStrLn . concatMap cellToString) grid
+printGrid grid = do
+    let colNumbers = "   " ++ unwords (map ((" " ++) . show) [0..(length (head grid) - 1)])
+    putStrLn colNumbers
 
 setLevel :: String -> [Int]
 setLevel level = case level of
