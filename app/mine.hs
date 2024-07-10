@@ -2,7 +2,7 @@ import System.Random (randomRIO)
 import Control.Monad (replicateM)
 import Text.Printf (printf)
 type Grid = [[Cell]]
-data Cell = Mine | Empty | Revealed Int deriving (Show, Eq)
+data Cell = Flag | Mine | Empty | Revealed Int deriving (Show, Eq)
 
 
 initializeGrid :: Int -> Int -> IO Grid 
@@ -16,10 +16,11 @@ placeMines grid numMines = do
     return $ foldl (\g (r, c) -> placeMine g r c) grid minePositions
 
 placeMine :: Grid -> Int -> Int -> Grid
-placeMine grid row col = take row grid ++ [take col (grid !! row) ++ [Mine] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
-
+-- placeMine grid row col = take row grid ++ [take col (grid !! row) ++ [Mine] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
+placeMine grid row col = updateCell grid row col Mine
 
 cellToString :: Cell -> String
+cellToString Flag = printf "%-3s" ("🚩" :: String)
 cellToString Mine = printf "%-3s" ("💣" :: String)
 cellToString Empty = printf "%-3s" ("🐥" :: String)
 cellToString (Revealed 0) = printf "%-3s" ("🍀" :: String)
@@ -57,6 +58,9 @@ getNeighbours grid row col = [ (r, c) | r <- [row - 1..row + 1], c <- [col - 1..
   --  case grid !!row !!col of
     --    Empty -> take row grid ++ [take col (grid !! row) ++ [Revealed (countMines grid row col)] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
 
+flagCell :: Grid -> [(Int, Int)] -> Grid
+flagCell grid [(row, col)] = updateCell grid row col Flag
+
 revealCell :: Grid -> [(Int, Int)] -> Grid
 revealCell grid [] = grid
 revealCell grid ((row, col) : rest) =
@@ -78,6 +82,7 @@ hideMines grid = map (map hideCell) grid
         where
                 hideCell Mine = Empty
                 hideCell cell = cell
+
 preventErrors :: Grid -> Int -> Int -> Maybe Cell
 preventErrors grid r c
   | r < 0 || c < 0 || r >= length grid || c >= length (head grid) = Nothing
@@ -85,24 +90,28 @@ preventErrors grid r c
   | otherwise = Just (grid !! r !! c)
  where
          alreadyRevealed = case grid !! r !! c of
+                            --  Flag       -> True
                              Revealed _ -> True
                              _          -> False
-
 playGame :: Grid -> IO ()
 playGame grid = do
     printGrid $ hideMines grid
-    putStrLn "Enter row and col to reveal (eg. 1 2): "
+    putStrLn "Enter row col mode (f: flag (optional)) (eg: 1 2 f or 1 2): "
     input <- getLine
-    let (row, col) = readCoords input
+    let (row, col, mode) = readCoords input
     case preventErrors grid row col of
-        Just Mine -> putStrLn "Boom! Game Over! You hit a mine." 
-        Just _    -> do
-            let newGrid = revealCell grid [(row, col)]
-            playGame newGrid
-        Nothing   -> putStrLn "Invalid Coordinates." >> playGame grid
+        Just Mine -> putStrLn "Boom! Game Over! You hit a mine."
+        Just _ -> do
+                  putStrLn mode
+                  let pos = [(row, col)]
+                  let newGrid = if mode == "f" then (flagCell grid pos) else (revealCell grid pos)
+                  playGame newGrid
+        Nothing -> do
+            putStrLn "Invalid Coordinates."
+            playGame grid
 
-readCoords :: String -> (Int, Int)
-readCoords input = (read (words input !! 0), read (words input !! 1)) 
+readCoords :: String -> (Int, Int, String)
+readCoords input = (read (words input !! 0), read (words input !! 1), if length input == 3 then " " else (show (input !! 4))) 
 
 main :: IO ()
 main = do
@@ -123,3 +132,5 @@ main = do
     --putStrLn ""
     playGame gridWithMines
     printGrid finalGrid
+    let try = flagCell finalGrid [(0, 0)]
+    printGrid try
