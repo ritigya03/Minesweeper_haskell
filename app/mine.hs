@@ -111,7 +111,7 @@ playGame grid = do
             playGame grid
 
 readCoords :: String -> (Int, Int, String)
-readCoords input = (read (words input !! 0), read (words input !! 1), if length input == 3 then " " else (show (input !! 4))) 
+readCoords input = (read (words input !! 0), read (words input !! 1), if length (words input) == 3 then (words input !! 2) else "") 
 
 main :: IO ()
 main = do
