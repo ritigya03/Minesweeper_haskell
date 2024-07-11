@@ -97,7 +97,8 @@ playGame grid flaggedCoords = do
     if head wordsInput == "f"
     then do
         let (row, col) = readCoords (unwords (tail wordsInput))
-        playGame grid flaggedCoords
+        let newFlaggedCoords = toggleFlag flaggedCoords (row, col)
+        playGame grid newFlaggedCoords
     else do
         let (row, col) = readCoords input
         case preventErrors grid row col of
@@ -110,6 +111,14 @@ playGame grid flaggedCoords = do
 
 readCoords :: String -> (Int, Int)
 readCoords input = (read (words input !! 0), read (words input !! 1)) 
+
+
+toggleFlag :: [(Int, Int)] -> (Int, Int) -> [(Int, Int)]
+toggleFlag flaggedCoords coord =
+    if coord `elem` flaggedCoords
+    then filter (/= coord) flaggedCoords
+    else coord : flaggedCoords
+
 
 main :: IO ()
 main = do
