@@ -40,11 +40,12 @@ setLevel level = case level of
     "I" -> [16, 16, 40]
     "E" -> [30, 16, 99]
 
-countNeighbouringMines :: Grid -> Int -> Int -> Int
-countNeighbouringMines grid row col = length[() | (r, c) <- neighbours, isMine r c]
+countMines :: Grid -> Int -> Int -> Int
+countMines grid row col = length[() | (r, c) <- neighbours, isMine r c]
     where 
         neighbours = getNeighbours grid row col
         isMine r c = case preventErrors grid r c of
+                       Just FlagMine -> True
                        Just Mine -> True
                        _         -> False
 
@@ -87,8 +88,8 @@ revealCell grid [] = grid
 revealCell grid ((row, col) : rest) =
     case grid !! row !! col of
         Empty -> let
-                    newGrid = updateCell grid row col (Revealed (countNeighbouringMines grid row col ))
-                    newRest = if countNeighbouringMines grid row col == 0 
+                    newGrid = updateCell grid row col (Revealed (countMines grid row col ))
+                    newRest = if countMines grid row col == 0 
                               then rest ++ (getNeighbours grid row col) 
                               else rest
                  in revealCell newGrid newRest
