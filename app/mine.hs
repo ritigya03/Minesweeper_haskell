@@ -2,7 +2,7 @@ import System.Random (randomRIO)
 import Control.Monad (replicateM)
 import Text.Printf (printf)
 type Grid = [[Cell]]
-data Cell = Flag | Mine | Empty | Revealed Int deriving (Show, Eq)
+data Cell = Flag | Mine | Empty | Revealed Int deriving (Show, Eq) 
 
 
 initializeGrid :: Int -> Int -> IO Grid 
@@ -39,13 +39,27 @@ setLevel level = case level of
     "I" -> [16, 16, 40]
     "E" -> [30, 16, 99]
 
-countMines :: Grid -> Int -> Int -> Int
-countMines grid row col = length[() | (r, c) <- neighbours, isMine r c]
+countNeighbouringMines :: Grid -> Int -> Int -> Int
+countNeighbouringMines grid row col = length[() | (r, c) <- neighbours, isMine r c]
     where 
         neighbours = getNeighbours grid row col
         isMine r c = case preventErrors grid r c of
                        Just Mine -> True
                        _         -> False
+
+countCell :: Grid -> Cell -> Int
+countCell grid cell = length [() | (r, c) <- gridCoords grid, isCell r c cell]
+    where
+        isCell r c cell = case preventErrors grid r c of
+                        Just cell -> True
+                        _         -> False 
+
+gridCoords :: Grid -> [(Int, Int)]
+gridCoords grid = do
+    let
+        rows = length grid
+        cols = length (head grid)
+    [ (r, c) | r <- [0..rows + 0], c <- [0..cols + 0]]
 
 getNeighbours :: Grid -> Int -> Int -> [(Int, Int)]
 getNeighbours grid row col = [ (r, c) | r <- [row - 1..row + 1], c <- [col - 1..col + 1], r >= 0, c >= 0, r < rows, c < cols, (r, c) /= (row, col) ] 
@@ -62,6 +76,7 @@ flagCell :: Grid -> [(Int, Int)] -> Grid
 flagCell grid [(row, col)] = 
     case grid !! row !! col of
         Empty -> updateCell grid row col Flag
+        Mine -> updateCell grid row col Flag
         Flag -> updateCell grid row col Empty
 
 revealCell :: Grid -> [(Int, Int)] -> Grid
@@ -69,8 +84,8 @@ revealCell grid [] = grid
 revealCell grid ((row, col) : rest) =
     case grid !! row !! col of
         Empty -> let
-                    newGrid = updateCell grid row col (Revealed (countMines grid row col))
-                    newRest = if countMines grid row col == 0 
+                    newGrid = updateCell grid row col (Revealed (countNeighbouringMines grid row col ))
+                    newRest = if countNeighbouringMines grid row col == 0 
                               then rest ++ (getNeighbours grid row col) 
                               else rest
                  in revealCell newGrid newRest
@@ -93,7 +108,7 @@ preventErrors grid r c
   | otherwise = Just (grid !! r !! c)
  where
          alreadyRevealed = case grid !! r !! c of
-                            --  Flag       -> True
+                             Flag       -> True
                              Revealed _ -> True
                              _          -> False
 playGame :: Grid -> IO ()
@@ -103,9 +118,11 @@ playGame grid = do
     input <- getLine
     let (row, col, mode) = readCoords input
     case preventErrors grid row col of
-        Just Mine -> putStrLn "Boom! Game Over! You hit a mine."
+        Just Mine -> if mode /= "f" then putStrLn "Boom! Game Over! You hit a mine." else do
+            let newGrid = flagCell grid [(row, col)]
+            playGame newGrid
         Just _ -> do
-                  putStrLn mode
+                --   putStrLn mode
                   let pos = [(row, col)]
                   let newGrid = if mode == "f" then (flagCell grid pos) else (revealCell grid pos)
                   playGame newGrid
