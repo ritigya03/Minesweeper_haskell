@@ -91,22 +91,25 @@ preventErrors grid r c
 playGame :: Grid-> [(Int, Int)] -> IO ()
 playGame grid flaggedCoords = do
     printGrid ( hideMines grid) flaggedCoords
-    putStrLn "Enter row and col to reveal (eg. 1 2) or flag/unflag (f 1 2): "
-    input <- getLine
-    let wordsInput = words input
-    if head wordsInput == "f"
-    then do
-        let (row, col) = readCoords (unwords (tail wordsInput))
-        let newFlaggedCoords = toggleFlag flaggedCoords (row, col)
-        playGame grid newFlaggedCoords
+    if checkWin grid
+    then putStrLn "Congratulations! You have won the game!"
     else do
-        let (row, col) = readCoords input
-        case preventErrors grid row col of
-            Just Mine -> putStrLn "Boom! Game Over! You hit a mine." 
-            Just _    -> do
-                let newGrid = revealCell grid [(row, col)]
-                playGame newGrid flaggedCoords
-            Nothing   -> putStrLn "Invalid Coordinates." >> playGame grid flaggedCoords
+        putStrLn "Enter row and col to reveal (eg. 1 2) or flag/unflag (f 1 2): "
+        input <- getLine
+        let wordsInput = words input
+        if head wordsInput == "f"
+        then do
+            let (row, col) = readCoords (unwords (tail wordsInput))
+            let newFlaggedCoords = toggleFlag flaggedCoords (row, col)
+            playGame grid newFlaggedCoords
+        else do
+            let (row, col) = readCoords input
+            case preventErrors grid row col of
+                Just Mine -> putStrLn "Boom! Game Over! You hit a mine." 
+                Just _    -> do
+                    let newGrid = revealCell grid [(row, col)]
+                    playGame newGrid flaggedCoords
+                Nothing   -> putStrLn "Invalid Coordinates." >> playGame grid flaggedCoords
 
 
 readCoords :: String -> (Int, Int)
@@ -119,6 +122,13 @@ toggleFlag flaggedCoords coord =
     then filter (/= coord) flaggedCoords
     else coord : flaggedCoords
 
+checkWin :: Grid -> Bool
+checkWin grid = all revealedOrMine (concat grid)
+  where
+    revealedOrMine cell = case cell of
+        Mine         -> True
+        Revealed _   -> True
+        _            -> False
 
 main :: IO ()
 main = do
@@ -129,5 +139,9 @@ main = do
     gridWithMines <- placeMines grid numMines
     let gridIndex = [ (r, c) | r <- [0..rows - 1], c <- [0..cols - 1] ] 
     let finalGrid = revealCell gridWithMines gridIndex
+    let debug = False
+    if debug 
+    then printGrid finalGrid []
+    else putStr ""
     playGame gridWithMines []
     printGrid finalGrid []
