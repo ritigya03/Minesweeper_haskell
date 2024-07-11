@@ -45,7 +45,7 @@ countMines grid row col = length[() | (r, c) <- neighbours, isMine r c]
     where 
         neighbours = getNeighbours grid row col
         isMine r c = case preventErrors grid r c of
-        --               Just FlagMine -> True
+                       Just FlagMine -> True
                        Just Mine -> True
                        _         -> False
 
@@ -125,6 +125,7 @@ playGame grid numNonMines = do
 countRevealedCells :: Grid -> Int
 countRevealedCells grid = length [() | row <- grid, cell <- row, 
                 case cell of
+                        -- FlagRevealed -> True;
                         Revealed _ -> True;
                         _          -> False]
 
@@ -143,5 +144,6 @@ main = do
     let numNonMines = (rows * cols) - numMines
     printGrid finalGrid
     playGame gridWithMines numNonMines
+    printGrid finalGrid
    
     
