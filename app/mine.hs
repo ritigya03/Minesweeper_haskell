@@ -52,11 +52,6 @@ getNeighbours grid row col = [ (r, c) | r <- [row - 1..row + 1], c <- [col - 1..
         rows = length grid
         cols = length (head grid)
 
---revealCell :: Grid -> Int -> Int -> Grid
---revealCell grid row col = 
-  --  case grid !!row !!col of
-    --    Empty -> take row grid ++ [take col (grid !! row) ++ [Revealed (countMines grid row col)] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
-
 revealCell :: Grid -> [(Int, Int)] -> Grid
 revealCell grid [] = grid
 revealCell grid ((row, col) : rest) =
@@ -106,9 +101,6 @@ readCoords input = (read (words input !! 0), read (words input !! 1))
 
 main :: IO ()
 main = do
-    -- let rows = 5
-    -- let cols = 5
-    -- let numMines = 5
     putStrLn "Enter level (B: Beginner, I: Intermediate, E: Expert): "
     level <- getLine
     let [rows, cols, numMines] = setLevel level
@@ -116,10 +108,5 @@ main = do
     gridWithMines <- placeMines grid numMines
     let gridIndex = [ (r, c) | r <- [0..rows - 1], c <- [0..cols - 1] ] 
     let finalGrid = revealCell gridWithMines gridIndex
-    --printGrid gridWithMines
-    --putStrLn ""
-    --let new = revealCell gridWithMines 6 1
-    --printGrid new
-    --putStrLn ""
     playGame gridWithMines
     printGrid finalGrid
