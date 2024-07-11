@@ -16,6 +16,7 @@ placeMines grid numMines = do
     return $ foldl (\g (r, c) -> placeMine g r c) grid minePositions
 
 placeMine :: Grid -> Int -> Int -> Grid
+-- placeMine grid row col = take row grid ++ [take col (grid !! row) ++ [Mine] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
 placeMine grid row col = updateCell grid row col Mine
 
 cellToString :: Cell -> String
@@ -48,6 +49,13 @@ countMines grid row col = length[() | (r, c) <- neighbours, isMine r c]
                        Just Mine -> True
                        _         -> False
 
+-- countCell :: Grid -> Cell -> Int
+-- countCell grid cell = length [() | (r, c) <- gridCoords grid, isCell r c cell]
+--     where
+--         isCell r c cell = case preventErrors grid r c of
+--                         Just cell -> True
+--                         _         -> False 
+
 gridCoords :: Grid -> [(Int, Int)]
 gridCoords grid = do
     let
@@ -60,6 +68,11 @@ getNeighbours grid row col = [ (r, c) | r <- [row - 1..row + 1], c <- [col - 1..
     where
         rows = length grid
         cols = length (head grid)
+
+--revealCell :: Grid -> Int -> Int -> Grid
+--revealCell grid row col = 
+  --  case grid !!row !!col of
+    --    Empty -> take row grid ++ [take col (grid !! row) ++ [Revealed (countMines grid row col)] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
 
 flagCell :: Grid -> [(Int, Int)] -> Grid
 flagCell grid [(row, col)] = 
@@ -99,6 +112,7 @@ preventErrors grid r c
   | otherwise = Just (grid !! r !! c)
  where
          alreadyRevealed = case grid !! r !! c of
+                            --  Flag       -> True
                              Revealed _ -> True
                              _          -> False
 playGame :: Grid -> IO ()
@@ -112,7 +126,7 @@ playGame grid = do
             let newGrid = flagCell grid [(row, col)]
             playGame newGrid
         Just _ -> do
-
+                --   putStrLn mode
                   let pos = [(row, col)]
                   let newGrid = if mode == "f" then (flagCell grid pos) else (revealCell grid pos)
                   playGame newGrid
@@ -125,6 +139,9 @@ readCoords input = (read (words input !! 0), read (words input !! 1), if length 
 
 main :: IO ()
 main = do
+    -- let rows = 5
+    -- let cols = 5
+    -- let numMines = 5
     putStrLn "Enter level (B: Beginner, I: Intermediate, E: Expert): "
     level <- getLine
     let [rows, cols, numMines] = setLevel level
@@ -132,6 +149,11 @@ main = do
     gridWithMines <- placeMines grid numMines
     let gridIndex = [ (r, c) | r <- [0..rows - 1], c <- [0..cols - 1] ] 
     let finalGrid = revealCell gridWithMines gridIndex
+    --printGrid gridWithMines
+    --putStrLn ""
+    --let new = revealCell gridWithMines 6 1
+    --printGrid new
+    --putStrLn ""
     playGame gridWithMines
     printGrid finalGrid
     
