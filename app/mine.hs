@@ -75,9 +75,10 @@ getNeighbours grid row col = [ (r, c) | r <- [row - 1..row + 1], c <- [col - 1..
 flagCell :: Grid -> [(Int, Int)] -> Grid
 flagCell grid [(row, col)] = 
     case grid !! row !! col of
+        Flag -> updateCell grid row col Empty
         Empty -> updateCell grid row col Flag
         Mine -> updateCell grid row col Flag
-        Flag -> updateCell grid row col Empty
+        -- _    -> grid
 
 revealCell :: Grid -> [(Int, Int)] -> Grid
 revealCell grid [] = grid
@@ -108,7 +109,7 @@ preventErrors grid r c
   | otherwise = Just (grid !! r !! c)
  where
          alreadyRevealed = case grid !! r !! c of
-                             Flag       -> True
+                            --  Flag       -> True
                              Revealed _ -> True
                              _          -> False
 playGame :: Grid -> IO ()
