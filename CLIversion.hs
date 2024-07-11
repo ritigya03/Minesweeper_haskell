@@ -1,6 +1,7 @@
 import System.Random (randomRIO)
 import Control.Monad (replicateM)
 import Text.Printf (printf)
+
 type Grid = [[Cell]]
 data Cell = FlagMine | FlagRevealed | Mine | Empty | Revealed Int deriving (Show, Eq) 
 
@@ -101,8 +102,8 @@ preventErrors grid r c
          alreadyRevealed = case grid !! r !! c of
                              Revealed _ -> True
                              _          -> False
-playGame :: Grid -> IO ()
-playGame grid = do
+playGame :: Grid -> Int -> IO ()
+playGame grid numNonMines = do
     printGrid $ hideMines grid
     putStrLn "Enter row col mode (f: flag (optional)) (eg: 1 2 f or 1 2): "
     input <- getLine
@@ -110,15 +111,22 @@ playGame grid = do
     case preventErrors grid row col of
         Just Mine -> if mode /= "f" then putStrLn "Boom! Game Over! You hit a mine." else do
             let newGrid = flagCell grid [(row, col)]
-            playGame newGrid
+            playGame newGrid numNonMines
         Just _ -> do
-
                   let pos = [(row, col)]
                   let newGrid = if mode == "f" then (flagCell grid pos) else (revealCell grid pos)
-                  playGame newGrid
+                  if countRevealedCells newGrid == numNonMines
+                     then putStrLn "Congratulations! You Win!"
+                     else playGame newGrid numNonMines
         Nothing -> do
             putStrLn "Invalid Coordinates."
-            playGame grid
+            playGame grid numNonMines
+
+countRevealedCells :: Grid -> Int
+countRevealedCells grid = length [() | row <- grid, cell <- row, 
+                case cell of
+                        Revealed _ -> True;
+                        _          -> False]
 
 readCoords :: String -> (Int, Int, String)
 readCoords input = (read (words input !! 0), read (words input !! 1), if length (words input) == 3 then (words input !! 2) else "") 
@@ -132,6 +140,7 @@ main = do
     gridWithMines <- placeMines grid numMines
     let gridIndex = [ (r, c) | r <- [0..rows - 1], c <- [0..cols - 1] ] 
     let finalGrid = revealCell gridWithMines gridIndex
-    playGame gridWithMines
+    let numNonMines = rows * cols - numMines
+    playGame gridWithMines numNonMines
     printGrid finalGrid
     
