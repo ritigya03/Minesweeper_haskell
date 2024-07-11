@@ -24,10 +24,16 @@ cellToString Empty = printf "%-3s" ("🐥" :: String)
 cellToString (Revealed 0) = printf "%-3s" ("🍀" :: String)
 cellToString (Revealed n) = printf "%-4d" (n :: Int)
 
-printGrid :: Grid -> IO()
-printGrid grid = do
+cellToStringWithFlag :: [(Int, Int)] -> Int -> Int -> Cell -> String
+cellToStringWithFlag flaggedCoords row col cell =
+  if (row, col) `elem` flaggedCoords
+  then printf "%-3s" ("🚩" :: String)
+  else cellToString cell
+
+printGrid :: Grid -> [(Int, Int)]-> IO()
+printGrid grid flaggedCoords = do
     let colNumbers = "   " ++ concatMap (\n -> printf "%-4d" (n :: Int)) [0..(length (head grid) - 1)]
-        rowWithNumbers = zipWith (\num row -> printf "%-3d" (num :: Int) ++ concatMap cellToString row) [0..] grid
+        rowWithNumbers = zipWith (\num row -> printf "%-3d" (num :: Int) ++ concatMap (\(col, cell) -> cellToStringWithFlag flaggedCoords num col cell) (zip [0..] row)) [0..] grid
     putStrLn colNumbers
     mapM_ putStrLn rowWithNumbers
 
@@ -82,24 +88,24 @@ preventErrors grid r c
                              Revealed _ -> True
                              _          -> False
 
-playGame :: Grid -> IO ()
-playGame grid = do
-    printGrid $ hideMines grid
+playGame :: Grid-> [(Int, Int)] -> IO ()
+playGame grid flaggedCoords = do
+    printGrid ( hideMines grid) flaggedCoords
     putStrLn "Enter row and col to reveal (eg. 1 2) or flag/unflag (f 1 2): "
     input <- getLine
     let wordsInput = words input
     if head wordsInput == "f"
     then do
         let (row, col) = readCoords (unwords (tail wordsInput))
-        playGame grid
+        playGame grid flaggedCoords
     else do
         let (row, col) = readCoords input
         case preventErrors grid row col of
             Just Mine -> putStrLn "Boom! Game Over! You hit a mine." 
             Just _    -> do
                 let newGrid = revealCell grid [(row, col)]
-                playGame newGrid
-            Nothing   -> putStrLn "Invalid Coordinates." >> playGame grid
+                playGame newGrid flaggedCoords
+            Nothing   -> putStrLn "Invalid Coordinates." >> playGame grid flaggedCoords
 
 
 readCoords :: String -> (Int, Int)
@@ -114,5 +120,5 @@ main = do
     gridWithMines <- placeMines grid numMines
     let gridIndex = [ (r, c) | r <- [0..rows - 1], c <- [0..cols - 1] ] 
     let finalGrid = revealCell gridWithMines gridIndex
-    playGame gridWithMines
-    printGrid finalGrid
+    playGame gridWithMines []
+    printGrid finalGrid []
