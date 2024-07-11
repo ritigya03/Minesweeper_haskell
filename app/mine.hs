@@ -59,7 +59,10 @@ getNeighbours grid row col = [ (r, c) | r <- [row - 1..row + 1], c <- [col - 1..
     --    Empty -> take row grid ++ [take col (grid !! row) ++ [Revealed (countMines grid row col)] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
 
 flagCell :: Grid -> [(Int, Int)] -> Grid
-flagCell grid [(row, col)] = updateCell grid row col Flag
+flagCell grid [(row, col)] = 
+    case grid !! row !! col of
+        Empty -> updateCell grid row col Flag
+        Flag -> updateCell grid row col Empty
 
 revealCell :: Grid -> [(Int, Int)] -> Grid
 revealCell grid [] = grid
@@ -132,5 +135,4 @@ main = do
     --putStrLn ""
     playGame gridWithMines
     printGrid finalGrid
-    let try = flagCell finalGrid [(0, 0)]
-    printGrid try
+    
