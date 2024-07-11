@@ -2,7 +2,7 @@ import System.Random (randomRIO)
 import Control.Monad (replicateM)
 import Text.Printf (printf)
 type Grid = [[Cell]]
-data Cell = Flag | Mine | Empty | Revealed Int deriving (Show, Eq) 
+data Cell = FlagMine | FlagRevealed | Mine | Empty | Revealed Int deriving (Show, Eq) 
 
 
 initializeGrid :: Int -> Int -> IO Grid 
@@ -20,7 +20,8 @@ placeMine :: Grid -> Int -> Int -> Grid
 placeMine grid row col = updateCell grid row col Mine
 
 cellToString :: Cell -> String
-cellToString Flag = printf "%-3s" ("🚩" :: String)
+cellToString FlagMine = printf "%-3s" ("🚩" :: String)
+cellToString FlagRevealed = printf "%-3s" ("🚩" :: String)
 cellToString Mine = printf "%-3s" ("💣" :: String)
 cellToString Empty = printf "%-3s" ("🐥" :: String)
 cellToString (Revealed 0) = printf "%-3s" ("🍀" :: String)
@@ -47,12 +48,12 @@ countNeighbouringMines grid row col = length[() | (r, c) <- neighbours, isMine r
                        Just Mine -> True
                        _         -> False
 
-countCell :: Grid -> Cell -> Int
-countCell grid cell = length [() | (r, c) <- gridCoords grid, isCell r c cell]
-    where
-        isCell r c cell = case preventErrors grid r c of
-                        Just cell -> True
-                        _         -> False 
+-- countCell :: Grid -> Cell -> Int
+-- countCell grid cell = length [() | (r, c) <- gridCoords grid, isCell r c cell]
+--     where
+--         isCell r c cell = case preventErrors grid r c of
+--                         Just cell -> True
+--                         _         -> False 
 
 gridCoords :: Grid -> [(Int, Int)]
 gridCoords grid = do
@@ -75,10 +76,11 @@ getNeighbours grid row col = [ (r, c) | r <- [row - 1..row + 1], c <- [col - 1..
 flagCell :: Grid -> [(Int, Int)] -> Grid
 flagCell grid [(row, col)] = 
     case grid !! row !! col of
-        Flag -> updateCell grid row col Empty
-        Empty -> updateCell grid row col Flag
-        Mine -> updateCell grid row col Flag
-        -- _    -> grid
+        FlagRevealed -> updateCell grid row col Empty
+        FlagMine -> updateCell grid row col Mine
+        Empty -> updateCell grid row col FlagRevealed
+        Mine -> updateCell grid row col FlagMine
+        _    -> grid
 
 revealCell :: Grid -> [(Int, Int)] -> Grid
 revealCell grid [] = grid
