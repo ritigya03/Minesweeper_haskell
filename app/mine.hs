@@ -18,7 +18,6 @@ placeMines grid numMines = do
 placeMine :: Grid -> Int -> Int -> Grid
 placeMine grid row col = take row grid ++ [take col (grid !! row) ++ [Mine] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
 
-
 cellToString :: Cell -> String
 cellToString Mine = printf "%-3s" ("💣" :: String)
 cellToString Empty = printf "%-3s" ("🐥" :: String)
@@ -86,15 +85,22 @@ preventErrors grid r c
 playGame :: Grid -> IO ()
 playGame grid = do
     printGrid $ hideMines grid
-    putStrLn "Enter row and col to reveal (eg. 1 2): "
+    putStrLn "Enter row and col to reveal (eg. 1 2) or flag/unflag (f 1 2): "
     input <- getLine
-    let (row, col) = readCoords input
-    case preventErrors grid row col of
-        Just Mine -> putStrLn "Boom! Game Over! You hit a mine." 
-        Just _    -> do
-            let newGrid = revealCell grid [(row, col)]
-            playGame newGrid
-        Nothing   -> putStrLn "Invalid Coordinates." >> playGame grid
+    let wordsInput = words input
+    if head wordsInput == "f"
+    then do
+        let (row, col) = readCoords (unwords (tail wordsInput))
+        playGame grid
+    else do
+        let (row, col) = readCoords input
+        case preventErrors grid row col of
+            Just Mine -> putStrLn "Boom! Game Over! You hit a mine." 
+            Just _    -> do
+                let newGrid = revealCell grid [(row, col)]
+                playGame newGrid
+            Nothing   -> putStrLn "Invalid Coordinates." >> playGame grid
+
 
 readCoords :: String -> (Int, Int)
 readCoords input = (read (words input !! 0), read (words input !! 1)) 
