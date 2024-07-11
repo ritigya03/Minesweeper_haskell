@@ -140,7 +140,7 @@ main = do
     gridWithMines <- placeMines grid numMines
     let gridIndex = [ (r, c) | r <- [0..rows - 1], c <- [0..cols - 1] ] 
     let finalGrid = revealCell gridWithMines gridIndex
-    let numNonMines = rows * cols - numMines
+    let numNonMines = (rows * cols) - numMines
     playGame gridWithMines numNonMines
     printGrid finalGrid
     
