@@ -18,6 +18,11 @@ main = do
                 windowDefaultHeight := 600]
     
     levelBox <- dialogNew
+    let lightGreen = Color 36959 61166 36959
+    widgetModifyBg levelBox StateNormal lightGreen
+    widgetModifyBg levelBox StateActive lightGreen
+    widgetModifyBase levelBox StateNormal lightGreen
+    widgetModifyBase levelBox StateActive lightGreen
     dialogAddButton levelBox ("Beginner" :: String) ResponseYes
     dialogAddButton levelBox ("Intermediate" :: String) ResponseNo
     dialogAddButton levelBox ("Expert" :: String) ResponseAccept
