@@ -1,6 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 import Graphics.UI.Gtk
 import Data.IORef
+import Graphics.UI.Gtk.Gdk.GC(Color)
+
+
+
+
 
 main :: IO ()
 main = do
@@ -8,7 +13,7 @@ main = do
     window <- windowNew :: IO Window
     
     set window [windowTitle := ("Minesweeper" :: String), 
-                containerBorderWidth := 40, 
+                containerBorderWidth := 20, 
                 windowDefaultWidth := 600, 
                 windowDefaultHeight := 600]
     
@@ -28,6 +33,11 @@ main = do
     grid <- tableNew rows cols True :: IO Table
     buttons <- mapM (\(i, j) -> do
                         btn <- buttonNew
+                        widgetModifyBg btn StateNormal (Color 65535 65535 52428) 
+                        widgetModifyBg btn StateActive (Color 34695 52851 60074) 
+                        widgetModifyBase btn StateNormal (Color 65535 65535 52428) 
+                        widgetModifyBase btn StateActive (Color 34695 52851 60074) 
+                         
                         tableAttachDefaults grid btn i (i+1) j (j+1)
                         return btn) [(i, j) | i <- [0..rows-1], j <- [0..cols-1]]
     
@@ -51,3 +61,8 @@ tileClicked mines buttons (i, j) = do
         let mineCount = length $ filter id [mineField !! x !! y | (x, y) <- neighbors]
         let Just btn = lookup (i, j) buttons
         set btn [buttonLabel := show mineCount]
+        let lightPink = Color 65535 46774 49544
+        widgetModifyBg btn StateNormal lightPink
+        widgetModifyBg btn StateActive lightPink
+        widgetModifyBase btn StateNormal lightPink
+        widgetModifyBase btn StateActive lightPink
