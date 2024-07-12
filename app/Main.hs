@@ -8,19 +8,32 @@ main = do
     window <- windowNew :: IO Window
     
     set window [windowTitle := ("Minesweeper" :: String), 
-                containerBorderWidth := 10, 
-                windowDefaultWidth := 400, 
-                windowDefaultHeight := 400]
+                containerBorderWidth := 40, 
+                windowDefaultWidth := 600, 
+                windowDefaultHeight := 600]
+    
+    levelBox <- dialogNew
+    dialogAddButton levelBox ("Beginner" :: String) ResponseYes
+    dialogAddButton levelBox ("Intermediate" :: String) ResponseNo
+    dialogAddButton levelBox ("Expert" :: String) ResponseAccept
 
-    grid <- tableNew 8 8 True :: IO Table
+    response <- dialogRun levelBox
+    let (rows, cols) = case response of
+                         ResponseYes    -> (8,8)
+                         ResponseNo     -> (16,16)
+                         ResponseAccept -> (30,16)
+                         _              -> (8,8) 
+    widgetDestroy levelBox
+
+    grid <- tableNew rows cols True :: IO Table
     buttons <- mapM (\(i, j) -> do
                         btn <- buttonNew
                         tableAttachDefaults grid btn i (i+1) j (j+1)
-                        return btn) [(i, j) | i <- [0..7], j <- [0..7]]
+                        return btn) [(i, j) | i <- [0..rows-1], j <- [0..cols-1]]
     
-    let buttonRefs = [((i, j), btn) | ((i, j), btn) <- zip [(i, j) | i <- [0..7], j <- [0..7]] buttons]
+    let buttonRefs = [((i, j), btn) | ((i, j), btn) <- zip [(i, j) | i <- [0..rows-1], j <- [0..cols-1]] buttons]
 
-    mines <- newIORef (replicate 8 (replicate 8 False))
+    mines <- newIORef (replicate rows (replicate cols False))
     mapM_ (\((i, j), btn) -> on btn buttonActivated (tileClicked mines buttonRefs (i, j))) buttonRefs
     containerAdd window grid
     on window objectDestroy mainQuit
