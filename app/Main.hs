@@ -3,10 +3,6 @@ import Graphics.UI.Gtk
 import Data.IORef
 import Graphics.UI.Gtk.Gdk.GC(Color)
 
-
-
-
-
 main :: IO ()
 main = do
     _ <- initGUI
@@ -37,7 +33,7 @@ main = do
 
     grid <- tableNew rows cols True :: IO Table
     buttons <- mapM (\(i, j) -> do
-                        btn <- buttonNew
+                        btn <- buttonNewWithLabel ("🐥" :: String)
                         widgetModifyBg btn StateNormal (Color 65535 65535 52428) 
                         widgetModifyBg btn StateActive (Color 34695 52851 60074) 
                         widgetModifyBase btn StateNormal (Color 65535 65535 52428) 
