@@ -19,15 +19,21 @@ main = do
     widgetModifyBg levelBox StateActive lightGreen
     widgetModifyBase levelBox StateNormal lightGreen
     widgetModifyBase levelBox StateActive lightGreen
-    dialogAddButton levelBox ("Beginner" :: String) ResponseYes
-    dialogAddButton levelBox ("Intermediate" :: String) ResponseNo
-    dialogAddButton levelBox ("Expert" :: String) ResponseAccept
+
+    let beginnerID = ResponseUser 1
+    let intermediateID = ResponseUser 2
+    let expertID = ResponseUser 3
+
+
+    dialogAddButton levelBox ("Beginner" :: String) (beginnerID)
+    dialogAddButton levelBox ("Intermediate" :: String) (intermediateID)
+    dialogAddButton levelBox ("Expert" :: String) (expertID)
 
     response <- dialogRun levelBox
     let (rows, cols) = case response of
-                         ResponseYes    -> (8,8)
-                         ResponseNo     -> (16,16)
-                         ResponseAccept -> (30,16)
+                         response | response == beginnerID  -> (8,8)
+                         response | response == intermediateID -> (16,16)
+                         response | response == expertID -> (30,16)
                          _              -> (8,8) 
     widgetDestroy levelBox
 
