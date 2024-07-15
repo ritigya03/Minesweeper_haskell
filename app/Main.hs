@@ -59,11 +59,6 @@ main = do
     writeIORef initialGrid finalGrid
 
     mapM_ (\((i, j), btn) -> on btn buttonActivated (tileClicked rows cols initialGrid buttonRefs (i, j))) buttonRefs
-    initialGrid <- newIORef (replicate rows (replicate cols False))
-    finalGrid <- placeMines (replicate rows (replicate cols False)) numMines
-    writeIORef initialGrid finalGrid
-
-    mapM_ (\((i, j), btn) -> on btn buttonActivated (tileClicked rows cols initialGrid buttonRefs (i, j))) buttonRefs
     containerAdd window grid
     on window objectDestroy mainQuit
     widgetShowAll window
@@ -89,12 +84,21 @@ tileClicked rows cols mines buttons (i, j) = do
         buttonSetLabel btn ("💣" :: String)
         putStrLn "Game Over!"
     else do
-        let neighbors = [(i+di, j+dj) | di <- [-1..1], dj <- [-1..1], i+di >= 0, i+di < rows, j+dj >= 0, j+dj < cols]
-        let mineCount = length $ filter id [mineField !! x !! y | (x, y) <- neighbors]
         let Just btn = lookup (i, j) buttons
-        set btn [buttonLabel := show mineCount]
+        set btn [buttonLabel := show(countMines mineField i j)]
         let lightPink = Color 65535 46774 49544
         widgetModifyBg btn StateNormal lightPink
         widgetModifyBg btn StateActive lightPink
         widgetModifyBase btn StateNormal lightPink
         widgetModifyBase btn StateActive lightPink
+
+countMines :: Grid -> Int -> Int -> Int
+countMines grid row col = length[() | (r, c) <- neighbours, grid!! r!! c]
+    where 
+        neighbours = getNeighbours grid row col
+
+getNeighbours :: Grid -> Int -> Int -> [(Int, Int)]
+getNeighbours grid row col = [ (r, c) | r <- [row - 1..row + 1], c <- [col - 1..col + 1], r >= 0, c >= 0, r < rows, c < cols, (r, c) /= (row, col) ] 
+    where
+        rows = length grid
+        cols = length (head grid)
