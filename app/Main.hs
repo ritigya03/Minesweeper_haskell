@@ -54,8 +54,11 @@ main = do
     
     let buttonRefs = [((i, j), btn) | ((i, j), btn) <- zip [(i, j) | i <- [0..rows-1], j <- [0..cols-1]] buttons]
 
-    mines <- newIORef (replicate rows (replicate cols False))
-    mapM_ (\((i, j), btn) -> on btn buttonActivated (tileClicked mines buttonRefs (i, j) rows cols)) buttonRefs
+    initialGrid <- newIORef (replicate rows (replicate cols False))
+    finalGrid <- placeMines (replicate rows (replicate cols False)) numMines
+    writeIORef initialGrid finalGrid
+
+    mapM_ (\((i, j), btn) -> on btn buttonActivated (tileClicked rows cols initialGrid buttonRefs (i, j))) buttonRefs
     initialGrid <- newIORef (replicate rows (replicate cols False))
     finalGrid <- placeMines (replicate rows (replicate cols False)) numMines
     writeIORef initialGrid finalGrid
