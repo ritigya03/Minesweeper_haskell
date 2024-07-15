@@ -3,7 +3,7 @@ import Graphics.UI.Gtk
 import Data.IORef
 import Graphics.UI.Gtk.Gdk.GC(Color)
 import System.Random (randomRIO)
-import Control.Monad (replicateM)
+import Control.Monad (replicateM,forM_)
 
 type Grid = [[Bool]]
 
@@ -79,18 +79,49 @@ tileClicked :: Int -> Int -> IORef [[Bool]] -> [((Int, Int), Button)] -> (Int, I
 tileClicked rows cols mines buttons (i, j) = do
     mineField <- readIORef mines
     if mineField !! i !! j
-    then do 
-        let Just btn = lookup (i, j) buttons
-        buttonSetLabel btn ("💣" :: String)
-        putStrLn "Game Over!"
-    else do
-        let Just btn = lookup (i, j) buttons
-        set btn [buttonLabel := show(countMines mineField i j)]
-        let lightPink = Color 65535 46774 49544
-        widgetModifyBg btn StateNormal lightPink
-        widgetModifyBg btn StateActive lightPink
-        widgetModifyBase btn StateNormal lightPink
-        widgetModifyBase btn StateActive lightPink
+        then do
+            let Just btn = lookup (i, j) buttons
+            buttonSetLabel btn ("💣" :: String)
+            putStrLn "Game Over!"
+        else do
+            let Just btn = lookup (i, j) buttons
+            set btn [buttonLabel := show(countMines mineField i j)]
+            let lightPink = Color 65535 46774 49544
+            widgetModifyBg btn StateNormal lightPink
+            widgetModifyBg btn StateActive lightPink
+            widgetModifyBase btn StateNormal lightPink
+            widgetModifyBase btn StateActive lightPink
+            if countMines mineField i j == 0
+                then revealAdjacentTiles rows cols mines buttons (i, j)
+                else return ()
+
+revealAdjacentTiles :: Int -> Int -> IORef [[Bool]] -> [((Int, Int), Button)] -> (Int, Int) -> IO ()
+revealAdjacentTiles rows cols mines buttons (i, j) = do
+    mineField <- readIORef mines
+    revealedTiles <- newIORef []
+    revealTile rows cols mines buttons (i, j) revealedTiles
+
+revealTile :: Int -> Int -> IORef [[Bool]] -> [((Int, Int), Button)] -> (Int, Int) -> IORef [(Int, Int)] -> IO ()
+revealTile rows cols mines buttons (i, j) revealedTiles = do
+    mineField <- readIORef mines
+    revealed <- readIORef revealedTiles
+    if (i, j) `elem` revealed
+        then return ()
+        else do
+            let Just btn = lookup (i, j) buttons
+            set btn [buttonLabel := show(countMines mineField i j)]
+            let lightPink = Color 65535 46774 49544
+            widgetModifyBg btn StateNormal lightPink
+            widgetModifyBg btn StateActive lightPink
+            widgetModifyBase btn StateNormal lightPink
+            widgetModifyBase btn StateActive lightPink
+            modifyIORef revealedTiles ((i, j) :)
+            if countMines mineField i j == 0
+                then do
+                    let neighbours = getNeighbours mineField i j
+                    forM_ neighbours $ \(r, c) -> revealTile rows cols mines buttons (r, c) revealedTiles
+                else return ()
+    return ()
 
 countMines :: Grid -> Int -> Int -> Int
 countMines grid row col = length[() | (r, c) <- neighbours, grid!! r!! c]
