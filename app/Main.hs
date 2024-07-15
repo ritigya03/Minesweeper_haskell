@@ -84,7 +84,10 @@ tileClicked :: Int -> Int -> IORef [[Bool]] -> [((Int, Int), Button)] -> (Int, I
 tileClicked rows cols mines buttons (i, j) = do
     mineField <- readIORef mines
     if mineField !! i !! j
-    then putStrLn "Game Over!"
+    then do 
+        let Just btn = lookup (i, j) buttons
+        buttonSetLabel btn ("💣" :: String)
+        putStrLn "Game Over!"
     else do
         let neighbors = [(i+di, j+dj) | di <- [-1..1], dj <- [-1..1], i+di >= 0, i+di < rows, j+dj >= 0, j+dj < cols]
         let mineCount = length $ filter id [mineField !! x !! y | (x, y) <- neighbors]
