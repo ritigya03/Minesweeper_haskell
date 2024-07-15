@@ -2,6 +2,10 @@
 import Graphics.UI.Gtk
 import Data.IORef
 import Graphics.UI.Gtk.Gdk.GC(Color)
+import System.Random (randomRIO)
+import Control.Monad (replicateM)
+
+type Grid = [[Bool]]
 
 main :: IO ()
 main = do
@@ -30,11 +34,11 @@ main = do
     dialogAddButton levelBox ("Expert" :: String) (expertID)
 
     response <- dialogRun levelBox
-    let (rows, cols) = case response of
-                         response | response == beginnerID  -> (8,8)
-                         response | response == intermediateID -> (16,16)
-                         response | response == expertID -> (30,16)
-                         _              -> (8,8) 
+    let (rows, cols,numMines) = case response of
+                         response | response == beginnerID  -> (8,8,10)
+                         response | response == intermediateID -> (16,16,40)
+                         response | response == expertID -> (30,16,99)
+                         _              -> (8,8,10) 
     widgetDestroy levelBox
 
     grid <- tableNew rows cols True :: IO Table
@@ -50,12 +54,26 @@ main = do
     
     let buttonRefs = [((i, j), btn) | ((i, j), btn) <- zip [(i, j) | i <- [0..rows-1], j <- [0..cols-1]] buttons]
 
-    mines <- newIORef (replicate rows (replicate cols False))
-    mapM_ (\((i, j), btn) -> on btn buttonActivated (tileClicked rows cols mines buttonRefs (i, j))) buttonRefs
+    initialGrid <- newIORef (replicate rows (replicate cols False))
+    finalGrid <- placeMines (replicate rows (replicate cols False)) numMines
+    writeIORef initialGrid finalGrid
+
+    mapM_ (\((i, j), btn) -> on btn buttonActivated (tileClicked rows cols initialGrid buttonRefs (i, j))) buttonRefs
     containerAdd window grid
     on window objectDestroy mainQuit
     widgetShowAll window
     mainGUI
+
+
+placeMines :: Grid -> Int -> IO Grid
+placeMines grid numMines = do
+    let rows = length grid
+    let cols = length (head grid)
+    minePositions <-replicateM numMines $ randomRIO ((0, 0), (rows - 1, cols - 1))
+    return $ foldl (\g (r, c) -> placeMine g r c) grid minePositions
+
+placeMine :: Grid -> Int -> Int -> Grid
+placeMine grid row col = take row grid ++ [take col (grid !! row) ++ [True] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
 
 tileClicked :: Int -> Int -> IORef [[Bool]] -> [((Int, Int), Button)] -> (Int, Int) -> IO ()
 tileClicked rows cols mines buttons (i, j) = do
