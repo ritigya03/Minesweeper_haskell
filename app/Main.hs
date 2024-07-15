@@ -54,6 +54,8 @@ main = do
     
     let buttonRefs = [((i, j), btn) | ((i, j), btn) <- zip [(i, j) | i <- [0..rows-1], j <- [0..cols-1]] buttons]
 
+    mines <- newIORef (replicate rows (replicate cols False))
+    mapM_ (\((i, j), btn) -> on btn buttonActivated (tileClicked mines buttonRefs (i, j) rows cols)) buttonRefs
     initialGrid <- newIORef (replicate rows (replicate cols False))
     finalGrid <- placeMines (replicate rows (replicate cols False)) numMines
     writeIORef initialGrid finalGrid
@@ -81,7 +83,6 @@ tileClicked rows cols mines buttons (i, j) = do
     if mineField !! i !! j
     then putStrLn "Game Over!"
     else do
-        -- Update the button label
         let neighbors = [(i+di, j+dj) | di <- [-1..1], dj <- [-1..1], i+di >= 0, i+di < rows, j+dj >= 0, j+dj < cols]
         let mineCount = length $ filter id [mineField !! x !! y | (x, y) <- neighbors]
         let Just btn = lookup (i, j) buttons
