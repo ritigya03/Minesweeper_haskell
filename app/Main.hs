@@ -45,9 +45,9 @@ main = do
     buttons <- mapM (\(i, j) -> do
                         btn <- buttonNewWithLabel ("🐥" :: String)
                         widgetModifyBg btn StateNormal (Color 65535 65535 52428) 
-                        widgetModifyBg btn StateActive (Color 34695 52851 60074) 
+                        widgetModifyBg btn StateActive (Color 65535 46774 49544) 
                         widgetModifyBase btn StateNormal (Color 65535 65535 52428) 
-                        widgetModifyBase btn StateActive (Color 34695 52851 60074) 
+                        widgetModifyBase btn StateActive (Color 65535 46774 49544) 
                          
                         tableAttachDefaults grid btn i (i+1) j (j+1)
                         return btn) [(i, j) | i <- [0..rows-1], j <- [0..cols-1]]
@@ -85,12 +85,15 @@ tileClicked rows cols mines buttons (i, j) = do
             putStrLn "Game Over!"
         else do
             let Just btn = lookup (i, j) buttons
-            set btn [buttonLabel := show(countMines mineField i j)]
-            let lightPink = Color 65535 46774 49544
-            widgetModifyBg btn StateNormal lightPink
-            widgetModifyBg btn StateActive lightPink
-            widgetModifyBase btn StateNormal lightPink
-            widgetModifyBase btn StateActive lightPink
+            if (countMines mineField i j) == 0
+                then buttonSetLabel btn ("🍀" :: String)
+                else buttonSetLabel btn (show (countMines mineField i j))
+
+            let lightBlue = Color 58980 62258 65535
+            widgetModifyBg btn StateNormal lightBlue
+            widgetModifyBg btn StateActive lightBlue
+            widgetModifyBase btn StateNormal lightBlue
+            widgetModifyBase btn StateActive lightBlue
             if countMines mineField i j == 0
                 then revealAdjacentTiles rows cols mines buttons (i, j)
                 else return ()
@@ -109,12 +112,14 @@ revealTile rows cols mines buttons (i, j) revealedTiles = do
         then return ()
         else do
             let Just btn = lookup (i, j) buttons
-            set btn [buttonLabel := show(countMines mineField i j)]
-            let lightPink = Color 65535 46774 49544
-            widgetModifyBg btn StateNormal lightPink
-            widgetModifyBg btn StateActive lightPink
-            widgetModifyBase btn StateNormal lightPink
-            widgetModifyBase btn StateActive lightPink
+            if (countMines mineField i j) == 0
+                then buttonSetLabel btn ("🍀" :: String)
+                else buttonSetLabel btn (show (countMines mineField i j))
+            let lightBlue = Color 58980 62258 65535
+            widgetModifyBg btn StateNormal lightBlue
+            widgetModifyBg btn StateActive lightBlue
+            widgetModifyBase btn StateNormal lightBlue
+            widgetModifyBase btn StateActive lightBlue
             modifyIORef revealedTiles ((i, j) :)
             if countMines mineField i j == 0
                 then do
