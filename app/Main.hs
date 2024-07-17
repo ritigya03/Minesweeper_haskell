@@ -4,6 +4,7 @@ import Data.IORef
 import Graphics.UI.Gtk.Gdk.GC(Color)
 import System.Random (randomRIO)
 import Control.Monad (replicateM,forM_)
+import Control.Concurrent (threadDelay)
 
 type Grid = [[Bool]]
 
@@ -58,7 +59,7 @@ main = do
     finalGrid <- placeMines (replicate rows (replicate cols False)) numMines
     writeIORef initialGrid finalGrid
 
-    mapM_ (\((i, j), btn) -> on btn buttonActivated (tileClicked rows cols initialGrid buttonRefs (i, j))) buttonRefs
+    mapM_ (\((i, j), btn) -> on btn buttonActivated (tileClicked window rows cols initialGrid buttonRefs (i, j))) buttonRefs
     containerAdd window grid
     on window objectDestroy mainQuit
     widgetShowAll window
@@ -75,14 +76,17 @@ placeMines grid numMines = do
 placeMine :: Grid -> Int -> Int -> Grid
 placeMine grid row col = take row grid ++ [take col (grid !! row) ++ [True] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
 
-tileClicked :: Int -> Int -> IORef [[Bool]] -> [((Int, Int), Button)] -> (Int, Int) -> IO ()
-tileClicked rows cols mines buttons (i, j) = do
+tileClicked ::Window -> Int -> Int -> IORef [[Bool]] -> [((Int, Int), Button)] -> (Int, Int) -> IO ()
+tileClicked window rows cols mines buttons (i, j) = do
     mineField <- readIORef mines
     if mineField !! i !! j
         then do
             let Just btn = lookup (i, j) buttons
-            buttonSetLabel btn ("💣" :: String)
-            putStrLn "Game Over!"
+            postGUIAsync $ buttonSetLabel btn ("💣" :: String)
+            postGUIAsync $ putStrLn "Game Over!"
+            postGUIAsync $ set window [windowTitle := ("Game Over" :: String)]
+            _ <- timeoutAdd (widgetDestroy window >> return False) 1000 
+            return ()
         else do
             let Just btn = lookup (i, j) buttons
             if (countMines mineField i j) == 0
