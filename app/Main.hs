@@ -3,12 +3,11 @@ import Data.IORef
 import Graphics.UI.Gtk.Gdk.GC (Color)
 import System.Random (randomRIO)
 import Control.Monad (replicateM, forM_)
-import Control.Concurrent (threadDelay)
 import Control.Monad.IO.Class (liftIO)
 
 type Grid = [[Cell]]
 
-data Cell = Mine | Empty | Revealed Int | Flagged | FlaggedMine deriving (Show, Eq)
+data Cell = Mine | Empty | Revealed Int deriving (Show, Eq)
 
 main :: IO ()
 main = do
@@ -78,20 +77,17 @@ flagTile :: Window -> IORef Grid -> [((Int, Int), Button)] -> (Int, Int) -> IO B
 flagTile window grid buttons (i, j) = do
     currentGrid <- readIORef grid
     let Just btn = lookup (i, j) buttons
-    case currentGrid !! i !! j of
-        Empty -> do
-            writeIORef grid (updateCell currentGrid i j Flagged)
-            postGUIAsync $ buttonSetLabel btn ("🚩" :: String)
-        Flagged -> do
-            writeIORef grid (updateCell currentGrid i j Empty)
-            postGUIAsync $ buttonSetLabel btn ("🐥" :: String)
-        Mine -> do
-            writeIORef grid (updateCell currentGrid i j FlaggedMine)
-            postGUIAsync $ buttonSetLabel btn ("🚩" :: String)
-        FlaggedMine -> do
-            writeIORef grid (updateCell currentGrid i j Mine)
-            postGUIAsync $ buttonSetLabel btn ("🐥" :: String)
-        _ -> return ()
+    currentLabel <- buttonGetLabel btn
+
+    -- Determine new label based on current label
+    let newLabel = case currentLabel of
+                     "🐥" -> "🚩"  -- Unflagged -> Flagged
+                     "🚩" -> "🐥"  -- Flagged -> Unflagged
+                     _    -> currentLabel  -- Keep the current label for mines and revealed cells
+
+    -- Update the button label
+    postGUIAsync $ buttonSetLabel btn newLabel
+
     return True
 
 updateCell :: Grid -> Int -> Int -> Cell -> Grid
@@ -179,4 +175,3 @@ placeMines grid numMines = do
 placeMine :: Grid -> Int -> Int -> Grid
 placeMine grid row col =
     take row grid ++ [take col (grid !! row) ++ [Mine] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
-
