@@ -8,7 +8,7 @@ import Control.Monad.IO.Class (liftIO)
 
 type Grid = [[Cell]]
 
-data Cell = Mine | Empty | Revealed Int | Flagged deriving (Show, Eq)
+data Cell = Mine | Empty | Revealed Int | Flagged | FlaggedMine deriving (Show, Eq)
 
 main :: IO ()
 main = do
@@ -84,6 +84,12 @@ flagTile window grid buttons (i, j) = do
             postGUIAsync $ buttonSetLabel btn ("🚩" :: String)
         Flagged -> do
             writeIORef grid (updateCell currentGrid i j Empty)
+            postGUIAsync $ buttonSetLabel btn ("🐥" :: String)
+        Mine -> do
+            writeIORef grid (updateCell currentGrid i j FlaggedMine)
+            postGUIAsync $ buttonSetLabel btn ("🚩" :: String)
+        FlaggedMine -> do
+            writeIORef grid (updateCell currentGrid i j Mine)
             postGUIAsync $ buttonSetLabel btn ("🐥" :: String)
         _ -> return ()
     return True
@@ -173,3 +179,4 @@ placeMines grid numMines = do
 placeMine :: Grid -> Int -> Int -> Grid
 placeMine grid row col =
     take row grid ++ [take col (grid !! row) ++ [Mine] ++ drop (col + 1) (grid !! row)] ++ drop (row + 1) grid
+
