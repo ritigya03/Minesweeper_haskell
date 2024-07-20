@@ -109,8 +109,9 @@ tileClicked window rows cols grid buttons (i, j) = do
                                 else show $ countMines currentGrid r c
                 postGUIAsync $ buttonSetLabel btn cell
             postGUIAsync $ putStrLn "Game Over!"
-            postGUIAsync $ set window [windowTitle := ("Game Over" :: String)]
-            _ <- timeoutAdd (widgetDestroy window >> return False) 1000 
+            -- postGUIAsync $ set window [windowTitle := ("Game Over" :: String)]
+            set window [windowTitle := ("Game Over" :: String)]
+            _ <- timeoutAdd (widgetDestroy window >> return False) 3000 
             return ()
         Empty -> do
             let Just btn = lookup (i, j) buttons
@@ -138,9 +139,10 @@ tileClicked window rows cols grid buttons (i, j) = do
                                 then "🍀"
                                 else show $ countMines currentGrid r c
                 postGUIAsync $ buttonSetLabel btn cell
+            -- postGUIAsync $ set window [windowTitle := ("Congratulations! You've Won the Game!!" :: String)]
+            set window [windowTitle := ("Congratulations! You've Won the Game!!" :: String)]
             postGUIAsync $ putStrLn "You Won!"
-            postGUIAsync $ set window [windowTitle := ("Congratulations! You've Won the Game!!" :: String)]
-            _ <- timeoutAdd (widgetDestroy window >> return False) 1000 
+            _ <- timeoutAdd (widgetDestroy window >> return False) 3000 
             return ()
         else return ()
 
