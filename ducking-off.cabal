@@ -67,7 +67,7 @@ executable ducking-off
     -- other-extensions:
 
     -- Other library packages from which modules are imported.
-    build-depends:    base ^>=4.17.2.1, gtk >=0.15 && <0.16, random
+    build-depends:    base ^>=4.17.2.1, gtk >=0.15 && <0.16, random, containers
 
     -- Directories containing source files.
     hs-source-dirs:   app

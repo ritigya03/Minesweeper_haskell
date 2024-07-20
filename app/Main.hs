@@ -8,7 +8,7 @@ import qualified Data.Set as Set
 
 type Grid = [[Cell]]
 
-data Cell = Mine | Empty | Revealed Int deriving (Show, Eq)
+data Cell = Mine | Empty | Revealed Int | Flagged deriving (Show, Eq)
 
 main :: IO ()
 main = do
@@ -60,15 +60,17 @@ main = do
     writeIORef initialGrid finalGrid
 
     mapM_ (\((i, j), btn) -> do
-              on btn buttonActivated (tileClicked window rows cols initialGrid buttonRefs (i, j))
-              on btn buttonPressEvent $ do
-                  button <- eventButton
-                  liftIO $ if button == RightButton
-                           then flagTile window initialGrid buttonRefs (i, j)
-                           else return False
-                  return False
-          ) buttonRefs
-          
+        on btn buttonActivated $ do
+            
+            tileClicked window rows cols initialGrid buttonRefs (i, j)
+        on btn buttonPressEvent $ do
+            button <- eventButton
+            liftIO $ if button == RightButton
+                    then flagTile window initialGrid buttonRefs (i, j)
+                    else return False
+        return False
+        ) buttonRefs
+            
     containerAdd window grid
     on window objectDestroy mainQuit
     widgetShowAll window
@@ -80,23 +82,13 @@ flagTile window grid buttons (i, j) = do
     let Just btn = lookup (i, j) buttons
     currentLabel <- buttonGetLabel btn
 
-    -- Determine new label based on current label
     let newLabel = case currentLabel of
-                     "🐥" -> "🚩"  -- Unflagged -> Flagged
-                     "🚩" -> "🐥"  -- Flagged -> Unflagged
-                     _    -> currentLabel  -- Keep the current label for mines and revealed cells
+                     "🐥" -> "🚩"  
+                     "🚩" -> "🐥"  
+                     _    -> currentLabel  
 
-    -- Update the button label
     postGUIAsync $ buttonSetLabel btn newLabel
     
-    currentGrid' <- readIORef grid
-    if checkWin currentGrid' 
-        then do
-            postGUIAsync $ putStrLn "You Won!"
-            postGUIAsync $ set window [windowTitle := ("Congratulations! You've Won the Game!!" :: String)]
-            _ <- timeoutAdd (widgetDestroy window >> return False) 1000 
-            return ()
-        else return ()
     return True
 
 updateCell :: Grid -> Int -> Int -> Cell -> Grid
@@ -131,6 +123,7 @@ tileClicked window rows cols grid buttons (i, j) = do
             widgetModifyBg btn StateActive lightBlue
             widgetModifyBase btn StateNormal lightBlue
             widgetModifyBase btn StateActive lightBlue
+            writeIORef grid (updateCell currentGrid i j (Revealed count))
             if count == 0
                 then revealAdjacentTiles rows cols grid buttons (i, j)
                 else return ()
@@ -138,6 +131,13 @@ tileClicked window rows cols grid buttons (i, j) = do
     currentGrid' <- readIORef grid
     if checkWin currentGrid' 
         then do
+            forM_ buttons $ \((r, c), btn) -> do
+                let cell = if currentGrid !! r !! c == Mine 
+                           then "💣"
+                           else if countMines currentGrid r c == 0
+                                then "🍀"
+                                else show $ countMines currentGrid r c
+                postGUIAsync $ buttonSetLabel btn cell
             postGUIAsync $ putStrLn "You Won!"
             postGUIAsync $ set window [windowTitle := ("Congratulations! You've Won the Game!!" :: String)]
             _ <- timeoutAdd (widgetDestroy window >> return False) 1000 
@@ -157,6 +157,7 @@ checkWin grid = all revealedOrMine (concat grid)
         Mine         -> True
         Revealed _   -> True
         _            -> False
+    
 
 revealTile :: Int -> Int -> IORef Grid -> [((Int, Int), Button)] -> (Int, Int) -> IORef [(Int, Int)] -> IO ()
 revealTile rows cols grid buttons (i, j) revealedTiles = do
@@ -175,6 +176,7 @@ revealTile rows cols grid buttons (i, j) revealedTiles = do
             widgetModifyBg btn StateActive lightBlue
             widgetModifyBase btn StateNormal lightBlue
             widgetModifyBase btn StateActive lightBlue
+            writeIORef grid (updateCell currentGrid i j (Revealed count))
             modifyIORef revealedTiles ((i, j) :)
             if count == 0
                 then do
