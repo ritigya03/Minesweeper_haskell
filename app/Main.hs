@@ -203,7 +203,6 @@ placeMines grid numMines = do
     let rows = length grid
     let cols = length (head grid)
     minePositions <- getUniqueMinePositions rows cols numMines
-    putStrLn $ show $ minePositions
     return $ foldl (\g (r, c) -> placeMine g c r) grid minePositions
 
 getUniqueMinePositions :: Int -> Int -> Int -> IO [(Int, Int)]
