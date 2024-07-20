@@ -4,6 +4,7 @@ import Graphics.UI.Gtk.Gdk.GC (Color)
 import System.Random (randomRIO)
 import Control.Monad (replicateM, forM_)
 import Control.Monad.IO.Class (liftIO)
+import qualified Data.Set as Set
 
 type Grid = [[Cell]]
 
@@ -30,9 +31,9 @@ main = do
     let intermediateID = ResponseUser 2
     let expertID = ResponseUser 3
 
-    dialogAddButton levelBox ("Beginner" :: String) (beginnerID)
-    dialogAddButton levelBox ("Intermediate" :: String) (intermediateID)
-    dialogAddButton levelBox ("Expert" :: String) (expertID)
+    dialogAddButton levelBox ("Beginner" :: String) beginnerID
+    dialogAddButton levelBox ("Intermediate" :: String) intermediateID
+    dialogAddButton levelBox ("Expert" :: String) expertID
 
     response <- dialogRun levelBox
     let (rows, cols, numMines) = case response of
@@ -87,7 +88,15 @@ flagTile window grid buttons (i, j) = do
 
     -- Update the button label
     postGUIAsync $ buttonSetLabel btn newLabel
-
+    
+    currentGrid' <- readIORef grid
+    if checkWin currentGrid' 
+        then do
+            postGUIAsync $ putStrLn "You Won!"
+            postGUIAsync $ set window [windowTitle := ("Congratulations! You've Won the Game!!" :: String)]
+            _ <- timeoutAdd (widgetDestroy window >> return False) 1000 
+            return ()
+        else return ()
     return True
 
 updateCell :: Grid -> Int -> Int -> Cell -> Grid
@@ -97,10 +106,16 @@ updateCell grid row col cell =
 tileClicked :: Window -> Int -> Int -> IORef Grid -> [((Int, Int), Button)] -> (Int, Int) -> IO ()
 tileClicked window rows cols grid buttons (i, j) = do
     currentGrid <- readIORef grid
+    
     case currentGrid !! i !! j of
         Mine -> do
-            let Just btn = lookup (i, j) buttons
-            postGUIAsync $ buttonSetLabel btn ("💣" :: String)
+            forM_ buttons $ \((r, c), btn) -> do
+                let cell = if currentGrid !! r !! c == Mine 
+                           then "💣"
+                           else if countMines currentGrid r c == 0
+                                then "🍀"
+                                else show $ countMines currentGrid r c
+                postGUIAsync $ buttonSetLabel btn cell
             postGUIAsync $ putStrLn "Game Over!"
             postGUIAsync $ set window [windowTitle := ("Game Over" :: String)]
             _ <- timeoutAdd (widgetDestroy window >> return False) 1000 
@@ -120,12 +135,28 @@ tileClicked window rows cols grid buttons (i, j) = do
                 then revealAdjacentTiles rows cols grid buttons (i, j)
                 else return ()
         _ -> return ()
+    currentGrid' <- readIORef grid
+    if checkWin currentGrid' 
+        then do
+            postGUIAsync $ putStrLn "You Won!"
+            postGUIAsync $ set window [windowTitle := ("Congratulations! You've Won the Game!!" :: String)]
+            _ <- timeoutAdd (widgetDestroy window >> return False) 1000 
+            return ()
+        else return ()
 
 revealAdjacentTiles :: Int -> Int -> IORef Grid -> [((Int, Int), Button)] -> (Int, Int) -> IO ()
 revealAdjacentTiles rows cols grid buttons (i, j) = do
     currentGrid <- readIORef grid
     revealedTiles <- newIORef []
     revealTile rows cols grid buttons (i, j) revealedTiles
+
+checkWin :: Grid -> Bool
+checkWin grid = all revealedOrMine (concat grid)
+  where
+    revealedOrMine cell = case cell of
+        Mine         -> True
+        Revealed _   -> True
+        _            -> False
 
 revealTile :: Int -> Int -> IORef Grid -> [((Int, Int), Button)] -> (Int, Int) -> IORef [(Int, Int)] -> IO ()
 revealTile rows cols grid buttons (i, j) revealedTiles = do
@@ -160,17 +191,28 @@ getNeighbours :: Grid -> Int -> Int -> [(Int, Int)]
 getNeighbours grid row col =
     let rows = length grid
         cols = length (head grid)
-        potentialNeighbours = [(row - 1, col - 1), (row - 1, col), (row - 1, col + 1),
-                               (row, col - 1),                 (row, col + 1),
-                               (row + 1, col - 1), (row + 1, col), (row + 1, col + 1)]
-    in filter (\(r, c) -> r >= 0 && r < rows && c >= 0 && c < cols) potentialNeighbours
+        potentialNeighbours = [(r, c) | r <- [row - 1..row + 1], c <- [col - 1..col + 1], r >= 0, c >= 0, r < rows, c < cols, (r, c) /= (row, col)]
+    in potentialNeighbours
 
 placeMines :: Grid -> Int -> IO Grid
 placeMines grid numMines = do
     let rows = length grid
     let cols = length (head grid)
-    minePositions <- replicateM numMines $ randomRIO ((0, 0), (rows - 1, cols - 1))
-    return $ foldl (\g (r, c) -> placeMine g r c) grid minePositions
+    minePositions <- getUniqueMinePositions rows cols numMines
+    putStrLn $ show $ minePositions
+    return $ foldl (\g (r, c) -> placeMine g c r) grid minePositions
+
+getUniqueMinePositions :: Int -> Int -> Int -> IO [(Int, Int)]
+getUniqueMinePositions rows cols numMines = go Set.empty []
+  where
+    go positions acc
+      | Set.size positions == numMines = return acc
+      | otherwise = do
+          pos <- (,) <$> randomRIO (0, rows - 1) <*> randomRIO (0, cols - 1)
+          if Set.member pos positions
+            then go positions acc
+            else go (Set.insert pos positions) (pos:acc)
+
 
 placeMine :: Grid -> Int -> Int -> Grid
 placeMine grid row col =
