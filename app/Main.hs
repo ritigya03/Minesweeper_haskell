@@ -108,9 +108,9 @@ tileClicked window rows cols grid buttons (i, j) = do
                                 then "🍀"
                                 else show $ countMines currentGrid r c
                 postGUIAsync $ buttonSetLabel btn cell
-            postGUIAsync $ putStrLn "Game Over! Time to DUCK OFF"
+            postGUIAsync $ putStrLn "Oh Duck! Game Over! Don't die so soon the next time"
             -- postGUIAsync $ set window [windowTitle := ("Game Over" :: String)]
-            set window [windowTitle := ("Game Over! Time to DUCK OFF" :: String)]
+            set window [windowTitle := ("Oh Duck! Game over" :: String)]
             _ <- timeoutAdd (widgetDestroy window >> return False) 3000 
             return ()
         Empty -> do
