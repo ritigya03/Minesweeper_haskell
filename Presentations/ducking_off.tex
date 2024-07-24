@@ -1,0 +1,114 @@
+\documentclass{beamer}
+\usetheme{CambridgeUS}
+\usecolortheme{crane}
+\usefonttheme{serif}
+\usepackage{hyperref}
+
+
+\usebackgroundtemplate%
+{%
+    \includegraphics[width=\paperwidth,height=\paperheight]{duckies.jpg}%
+}
+
+
+ 
+\title{Ducking Off} 
+\subtitle{Implementing Minesweeper in Haskell}
+\author{Kriti Chaturvedi \and Mariam Eqbal \and Ritigya Gupta}
+\date{\today}
+
+\titlegraphic{\includegraphics[width=.5\textwidth,height=.5\textheight]{duckie.png}}
+
+\begin{document}
+
+\begin{frame}
+    \titlepage 
+\end{frame}
+
+\section{Objective}
+\begin{frame}{Objective}
+    \begin{enumerate}
+        \item To learn and establish a basic proficiency in Haskell.
+        \item To familiarize ourselves with GUI libraries in Haskell.
+        \item To develop an attitude to learn things in limited time constraints.
+    \end{enumerate}
+\end{frame}
+
+\section{Division of Work}
+\begin{frame}{Division of work}
+    \begin{enumerate}
+        \item Mariam - Basic logic of the Minesweeper board and implementation in the terminal (without GUI)
+        \item Ritigya - Making an attractive Haskell GUI
+        \item Kriti - Testing and debugging 
+    \end{enumerate}
+    \end{frame}
+
+\section{Timeline}
+\begin{frame}{Timeline}
+    \begin{enumerate}
+        \item Start Date - 1st July, 2024
+        \item WEEK 1: \begin{itemize}
+            \item Initialisation 
+            \item Worked on CLI version
+            \item CLI version completed - 11 July 2024
+            \item Integrate all components
+          \end{itemize}
+        
+        
+        \item WEEK 2: \begin{itemize}
+            \item Worked on GUI Version
+            \item Final Testing and debugging
+            \item GUI Version completed - 22 July
+          \end{itemize}
+    \end{enumerate}
+    \end{frame}
+
+\section{Repository}
+\begin{frame}{Repository}
+    \href{https://gitlab.com/minesweeper5623226/ducking-off}{\beamergotobutton{GitLab Repository}}
+\end{frame}
+
+\section{Learnings}
+
+\begin{frame}{Explicit Learnings}
+    \begin{enumerate}
+        \item Proficiency in Haskell
+        \item Understanding GTK
+        \item Handling containers in Haskell
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Implicit Learnings}
+    \begin{enumerate}
+        \item Learning to use git well
+        \item Learning to use the terminal effectively
+        \item Importance of regularly contacting and coordinating with team mates
+    \end{enumerate}
+\end{frame}
+
+\section{Why (not) Haskell?}
+\begin{frame}{Why (not) Haskell?}
+    \begin{enumerate}
+        \item Haskell's immutability is not something suitable for maintaining game states.
+        \item GUI programming was awkaward to write in a purely functional language
+    \end{enumerate}
+\end{frame}
+
+\section{Challenges}
+
+\begin{frame}{Challenges}
+    \begin{enumerate}
+        \item Working with GTK with not much information available easily.
+        \item Coordinating with different schedules.
+    \end{enumerate}
+\end{frame}
+
+\section{Thank You}
+
+\begin{frame}{ }
+    \begin{center}
+        \LARGE
+        Thank You
+    \end{center}
+\end{frame}
+\end{document}

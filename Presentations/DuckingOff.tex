@@ -1,0 +1,116 @@
+\documentclass{beamer}
+\usetheme{CambridgeUS}
+\usecolortheme{crane}
+\usefonttheme{serif}
+
+\usebackgroundtemplate%
+{%
+    \includegraphics[width=\paperwidth,height=\paperheight]{duckies.jpg}%
+}
+
+
+% Title page details: 
+\title{Ducking Off} 
+\subtitle{Implementing Minesweeper in Haskell}
+\author{Kriti Chaturvedi \and Mariam Eqbal \and Ritigya Gupta}
+\date{\today}
+
+\titlegraphic{\includegraphics[width=.5\textwidth,height=.5\textheight]{duckie.png}}
+
+\begin{document}
+
+% Title page frame
+\begin{frame}
+    \titlepage 
+\end{frame}
+
+\section{Objective}
+%Objective Frame
+\begin{frame}{Objective}
+    \begin{enumerate}
+        \item To learn and establish a basic proficiency in Haskell.
+        \item To familiarize ourselves with GUI libraries in Haskell.
+        \item To develop an attitude to learn things in limited time constraints.
+    \end{enumerate}
+\end{frame}
+
+\section{Some fun modifications}
+%Objective Frame
+\begin{frame}{Some fun modifications}
+    \begin{enumerate}
+        \item Unopened tiles will be respresented by lilypads. 
+        \item Numbered tiles will be represented by water.
+        \item Mines will be represented by sharks.
+        \item Safe areas will be represented by ducks. 
+        \item Flags will be represented by lilies.
+    \end{enumerate}
+\end{frame}
+
+\section{Why Haskell?}
+%Why Haskell Frame
+\begin{frame}{Why Haskell?}
+    \begin{enumerate}
+        \item We just want to learn it
+        \item High level abstractions
+        \item Lazy Evaluation
+        \item Purely functional language
+    \end{enumerate}
+    \end{frame}
+
+\section{Implementation}
+%Plan Frame
+\begin{frame}{Implementation}
+    \begin{enumerate}
+        \item Using System.Random module for placing the mines (sharks) randomly for board generation.
+        \item Numbering the tiles on the basis of the sharks around it.
+        \item Use Gtk2Hs for making a GUI in Haskell.
+    \end{enumerate}
+    \end{frame}
+
+\section{Division of Work}
+%Work division Frame
+\begin{frame}{Division of work}
+    \begin{enumerate}
+        \item Mariam - Basic logic of the Minesweeper board and implementation in the terminal (without GUI)
+        \item Ritigya - Making an attractive Haskell GUI
+        \item Kriti - Testing and debugging 
+    \end{enumerate}
+    \end{frame}
+
+\section{Timeline}
+%Timeline Frame
+\begin{frame}{Timeline}
+    \begin{enumerate}
+        \item WEEK 1: \begin{itemize}
+            \item Make test cases (3 boards for testing at different stages)
+            \item Make the board from scratch
+            \item Build GUI
+            \item Integrate all components
+          \end{itemize}
+        
+        \item WEEK 2: \begin{itemize}
+            \item Days 1 - 3: Finalising the code, structuring, ordering and completing code.
+            \item Days 4 - 7: Final testing and debugging
+          \end{itemize}
+    \end{enumerate}
+    \end{frame}
+
+\section{Potential Challenges}
+%Potential Challenges Frame
+\begin{frame}{Potential Challenges}
+    \begin{enumerate}
+        \item Coordination across regions.
+        \item Creating a UI in Haskell can be difficult, especially a graphical UI.
+    \end{enumerate}
+    \end{frame}
+
+\section{Questions}
+%Potential Challenges Frame
+\begin{frame}{ }
+    \begin{center}
+        \LARGE
+   This is Team Project Puff Girls signing off, \\ 
+   We're open to questions if any.
+    \end{center}
+\end{frame}
+\end{document}
